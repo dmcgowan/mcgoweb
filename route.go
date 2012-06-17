@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// HTTPMethods represents one or more HTTP methods.
 type HTTPMethods byte
 
 const HTTP_METHOD_ERROR HTTPMethods = 0x00
@@ -20,6 +21,7 @@ var HTTP_METHOD_MAP = map[string]HTTPMethods{
 	"DELETE": HTTP_DELETE,
 }
 
+// Route represents a route to a request handler.
 type Route struct {
 	Path    string
 	Handler RequestHandler
@@ -81,9 +83,9 @@ func (route *Route) matchesRequest(context *RequestContext) bool {
 		if len(variable_match) > 1 {
 			group_matches := variable_match[1:]
 			group_names := route.pathRE.SubexpNames()[1:]
-			context.PathVars = make(map[string]string, len(group_matches))
+			context.RequestVars = make(map[string]string, len(group_matches))
 			for i, match := range group_matches {
-				context.PathVars[group_names[i]] = match
+				context.RequestVars[group_names[i]] = match
 			}
 		}
 		return true

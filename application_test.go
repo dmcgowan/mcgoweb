@@ -22,7 +22,7 @@ func TestHandling(t *testing.T) {
 		handler.Path = "/user/<userid:int>"
 		handler.HTTPMethods = HTTP_GET
 		handler.RequestHandler = func(context *RequestContext) {
-			userid, _ = context.PathVars["userid"]
+			userid, _ = context.RequestVars["userid"]
 			context.Writer.WriteHeader(200)
 		}
 		return handler

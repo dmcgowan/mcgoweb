@@ -12,7 +12,7 @@ func TestBlueprint(t *testing.T) {
 		handler.Path = "/fs/<filepath:path>"
 		handler.HTTPMethods = HTTP_GET
 		handler.RequestHandler = func(context *RequestContext) {
-			filepath, _ = context.PathVars["filepath"]
+			filepath, _ = context.RequestVars["filepath"]
 			context.Writer.WriteHeader(200)
 		}
 		return handler

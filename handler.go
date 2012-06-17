@@ -2,13 +2,15 @@ package mcgoweb
 
 import ()
 
+// RequestHandler is a function definition for an implementation
+// of an HTTP request.
 type RequestHandler func(*RequestContext)
 
-type Middleware interface {
-	BeforeRequest(*RequestContext)
-	AfterRequest(*RequestContext)
-}
+// Middleware is a function that wraps a request handler to
+// allow calling code before and after an HTTP request handler.
+type Middleware func(RequestHandler, *RequestContext)
 
+// Handler represents the handling process for an HTTP request.
 type Handler struct {
 	RequestHandler
 	Middleware []Middleware
@@ -16,21 +18,36 @@ type Handler struct {
 	HTTPMethods
 }
 
-func useMiddleware(handler RequestHandler, middleware Middleware) RequestHandler {
-	return func(context *RequestContext) {
-		middleware.BeforeRequest(context)
-		handler(context)
-		middleware.AfterRequest(context)
-	}
-}
+// HandlerGenerator is a function definition which returns a
+// handler.
+type HandlerGenerator func() *Handler
 
-func processMiddlewareChain(handler RequestHandler, middlewares []Middleware) RequestHandler {
-	for _, middleware := range middlewares {
-		handler = useMiddleware(handler, middleware)
-	}
+// NewHandler returns a new Handler given a path and supported
+// HTTP methods.
+func NewHandler(path string, methods HTTPMethods) *Handler {
+	handler := new(Handler)
+	handler.Path = path
+	handler.HTTPMethods = methods
 	return handler
 }
 
+// AddMiddleware adds a middleware function to the handler to
+// be called after previously added handler middleware.  Any
+// Middleware added to an application or blueprint will always
+// be called before this middleware.
 func (handler *Handler) AddMiddleware(middleware Middleware) {
 	handler.Middleware = append(handler.Middleware, middleware)
+}
+
+func (handler RequestHandler) withMiddleware(middleware Middleware) RequestHandler {
+	return func(context *RequestContext) {
+		middleware(handler, context)
+	}
+}
+
+func (handler RequestHandler) withMiddlewareChain(middlewares []Middleware) RequestHandler {
+	for _, middleware := range middlewares {
+		handler = handler.withMiddleware(middleware)
+	}
+	return handler
 }

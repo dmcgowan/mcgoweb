@@ -28,10 +28,10 @@ func TestRouteMatch(t *testing.T) {
 		if !route.matchesRequest(context) {
 			t.Errorf("Route match failure...\nRoute Path: '%s'\nRequest Path: '%s'", route_path, request_path)
 		}
-		if len(context.PathVars) != expected_vars {
-			t.Errorf("Paramater variable count failure...\nExpected: %d variables\nActual: %d variables", expected_vars, len(context.PathVars))
+		if len(context.RequestVars) != expected_vars {
+			t.Errorf("Paramater variable count failure...\nExpected: %d variables\nActual: %d variables", expected_vars, len(context.RequestVars))
 		}
-		return context.PathVars
+		return context.RequestVars
 	}
 	pathVariableTest := func(t *testing.T, vars map[string]string, key, value string) {
 		if v, ok := vars[key]; ok {
