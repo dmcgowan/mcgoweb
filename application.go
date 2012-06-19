@@ -25,6 +25,7 @@ type HTTPApplication struct {
 	configuration HTTPApplicationConfiguration
 	middleware    []Middleware
 	routes        []*Route
+	sessionCache  SessionCache
 }
 
 // ServerHTTP dispatches requests to the matching
@@ -33,6 +34,7 @@ func (app *HTTPApplication) ServeHTTP(writer http.ResponseWriter, request *http.
 	context := new(RequestContext)
 	context.Request = request
 	context.Writer = writer
+	context.sessionCache = app.sessionCache
 	app.dispatch(context)
 }
 
@@ -123,6 +125,12 @@ func (app *HTTPApplication) RegisterBlueprint(blueprint *Blueprint) {
 		route := newRoute(request_path, request_handler, handler.HTTPMethods)
 		app.routes = append(app.routes, route)
 	}
+}
+
+
+// SetSessionCache sets the cache to use for the application's sessions.
+func (app *HTTPApplication) SetSessionCache(cache SessionCache) {
+	app.sessionCache = cache
 }
 
 func (app *HTTPApplication) dispatch(context *RequestContext) {

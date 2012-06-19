@@ -22,13 +22,13 @@ import "github.com/dmcgowan/mcgoweb"
 + Path variables for passing in arguments from the path to the handler
 + Path variable data types
 + Request routing based on HTTP method and path variable type match
++ Session handling
 
 ### In-Progress:
 
 + Automatic Content-Type handling
 + Automatic error handling
 + Integrated template rendering
-+ Session handling
 
 ### Possible Future Support:
 
