@@ -46,8 +46,8 @@ func (handler RequestHandler) withMiddleware(middleware Middleware) RequestHandl
 }
 
 func (handler RequestHandler) withMiddlewareChain(middlewares []Middleware) RequestHandler {
-	for _, middleware := range middlewares {
-		handler = handler.withMiddleware(middleware)
+	for i := len(middlewares) -1 ; i >= 0 ; i = i - 1 {
+		handler = handler.withMiddleware(middlewares[i])
 	}
 	return handler
 }

@@ -54,3 +54,46 @@ func TestHandling(t *testing.T) {
 		t.Errorf("Unexpected value for 'userid'...\nExpected: '%s'\nActual: '%s'", expected, userid)
 	}
 }
+
+func TestMiddlewareOrdering(t *testing.T) {
+	var last_middleware string
+	first_middleware := func (handler RequestHandler, context *RequestContext) {
+		last_middleware = "first"
+		handler(context)
+	}
+	
+	second_middleware := func (handler RequestHandler, context *RequestContext) {
+		last_middleware = "second"
+		handler(context)
+	}
+
+
+	NewTestHandler := func() *Handler {
+		handler := new(Handler)
+		handler.Path = "/"
+		handler.AddMiddleware(second_middleware)
+		handler.HTTPMethods = HTTP_GET
+		handler.RequestHandler = func(context *RequestContext) {
+			context.Writer.WriteHeader(200)
+		}
+		return handler
+	}
+	
+	NewTestBlueprint := func() *Blueprint {
+		blueprint := NewBlueprint("/")
+		blueprint.AddMiddleware(first_middleware)
+		blueprint.RegisterHandler(NewTestHandler())
+		return blueprint
+	}
+
+	app := NewHTTPApplication("Middleware Test", "/", "0.0.0.0:7654")
+	app.RegisterBlueprint(NewTestBlueprint())
+
+	var response *httptest.ResponseRecorder
+
+	response = httptest.NewRecorder()
+	app.ServeHTTP(response, createTestRequest("/"))
+	if last_middleware != "second" {
+		t.Errorf("Unexpected last middleware\nExpected: 'second'\nActual: '%s'", last_middleware)
+	}
+}
